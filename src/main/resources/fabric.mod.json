@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "petrified",
+	"version": "${version}",
+	"name": "Petrified",
+	"description": "",
+	"authors": [
+		"L33T"
+	],
+	"contact": {
+		"homepage": "https://solo.to/l33tfox",
+		"sources": "https://github.com/L33tfx/petrified-26.2"
+	},
+	"license": "MIT",
+	"icon": "assets/petrified/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.l33tfox.petrified.Petrified"
+		],
+		"fabric-datagen": [
+			"com.l33tfox.petrified.PetrifiedDataGenerator"
+		]
+	},
+	"mixins": [
+		"petrified.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
