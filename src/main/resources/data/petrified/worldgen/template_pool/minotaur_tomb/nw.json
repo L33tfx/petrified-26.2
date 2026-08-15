@@ -1,0 +1,15 @@
+{
+  "name": "petrified:minotaur_tomb/nw",
+  "fallback": "minecraft:empty",
+  "elements": [
+    {
+      "weight": 1,
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "petrified:minotaur_tomb/tomb_nw",
+        "projection": "rigid",
+        "processors": "minecraft:empty"
+      }
+    }
+  ]
+}
