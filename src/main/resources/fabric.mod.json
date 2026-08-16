@@ -18,6 +18,9 @@
 		"main": [
 			"com.l33tfox.petrified.Petrified"
 		],
+		"client": [
+			"com.l33tfox.petrified.PetrifiedClient"
+		],
 		"fabric-datagen": [
 			"com.l33tfox.petrified.PetrifiedDataGenerator"
 		]
