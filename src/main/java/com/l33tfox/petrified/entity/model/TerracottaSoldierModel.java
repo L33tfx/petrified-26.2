@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 // Originally generated with Blockbench for Fabric 1.17+, then updated to 26.2 mappings
 // Used as model for both soldier BlockEntity and Entity
 public class TerracottaSoldierModel<S extends FabricRenderState> extends Model<S> {
+
     private final ModelPart head;
     private final ModelPart hat;
     private final ModelPart nose;
@@ -18,6 +19,7 @@ public class TerracottaSoldierModel<S extends FabricRenderState> extends Model<S
     private final ModelPart right_arm;
     private final ModelPart left_leg;
     private final ModelPart right_leg;
+
     public TerracottaSoldierModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
         this.head = root.getChild("head");

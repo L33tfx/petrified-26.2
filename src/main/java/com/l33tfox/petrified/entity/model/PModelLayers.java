@@ -11,10 +11,21 @@ public class PModelLayers {
                     "main"
             );
 
+    public static final ModelLayerLocation TERRACOTTA_SOLDIER_EYES_LAYER =
+            new ModelLayerLocation(
+                    Petrified.id("terracotta_soldier_eyes"),
+                    "main"
+            );
+
     public static void init() {
         ModelLayerRegistry.registerModelLayer(
                 TERRACOTTA_SOLDIER_LAYER,
                 TerracottaSoldierModel::getTexturedModelData
+        );
+
+        ModelLayerRegistry.registerModelLayer(
+                TERRACOTTA_SOLDIER_EYES_LAYER,
+                TerracottaSoldierEyesModel::getTexturedModelData
         );
     }
 }

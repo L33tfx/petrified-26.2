@@ -7,15 +7,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -30,14 +27,22 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.Random;
 
 public class TerracottaSoldierBlock extends BaseEntityBlock {
 
     public static final MapCodec<TerracottaSoldierBlock> CODEC = simpleCodec(TerracottaSoldierBlock::new);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    private static final VoxelShape SHAPE = Block.column(8.0, 0.0, 16.0);
+    private static final Random RANDOM = new Random();
 
     @Override
     public @NonNull MapCodec<? extends TerracottaSoldierBlock> codec() {
@@ -80,15 +85,25 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
     public @Nullable BlockState getStateForPlacement(final BlockPlaceContext context) {
         BlockPos pos = context.getClickedPos();
         Level level = context.getLevel();
+
         return pos.getY() < level.getMaxY() && level.getBlockState(pos.above()).canBeReplaced(context)
                 ? this.defaultBlockState().setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER))
                 : null;
     }
 
     @Override
+    protected @NonNull VoxelShape getShape(final BlockState state, final BlockGetter level, final BlockPos pos, final CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
     public void setPlacedBy(final Level level, final BlockPos pos, final BlockState state, final @Nullable LivingEntity by, final ItemStack itemStack) {
         BlockPos abovePos = pos.above();
         level.setBlockAndUpdate(abovePos, copyWaterloggedFrom(level, abovePos, this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER)));
+
+        if (by != null && level.getBlockEntity(pos) instanceof TerracottaSoldierBlockEntity blockEntity) {
+            blockEntity.setYaw(by.getYRot() + 180.0F);
+        }
     }
 
     @Override
@@ -99,6 +114,13 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
 
         BlockState belowState = level.getBlockState(pos.below());
         return belowState.is(this) && belowState.getValue(HALF) == DoubleBlockHalf.LOWER;
+    }
+
+    @Override
+    public void onPlace(final BlockState state, final Level level, final BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
+        if (state.getValue(HALF) != DoubleBlockHalf.UPPER) {
+            level.scheduleTick(pos, this, 5);
+        }
     }
 
     public static void placeAt(final LevelAccessor level, final BlockState state, final BlockPos lowerPos, final @Block.UpdateFlags int updateType) {
@@ -172,13 +194,55 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
     }
 
     @Override
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(final Level level, final BlockState blockState, final BlockEntityType<T> type) {
-        return !level.isClientSide()
-                ? BaseEntityBlock.createTickerHelper(
-                type,
-                BlockEntityTypes.SCULK_SHRIEKER,
-                (innerLevel, pos, state, entity) -> VibrationSystem.Ticker.tick(innerLevel, entity.getVibrationData(), entity.getVibrationUser())
-        )
-                : null;
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        super.tick(state, level, pos, random);
+        Player player = getNearestPlayer(level, pos);
+        System.out.println(pos);
+        if (player != null && level.getBlockEntity(pos) instanceof TerracottaSoldierBlockEntity blockEntity) {
+            double dx = pos.getX() + 0.5 - player.getX();
+            double dz = pos.getZ() + 0.5 - player.getZ();
+            blockEntity.setEyesActive(!isInPlayerView(pos, level, player, 1, false, true));
+        }
+
+        level.scheduleTick(pos, this, 5);
+    }
+
+    private Player getNearestPlayer(ServerLevel level, BlockPos pos) {
+        if (level == null) {
+            return null;
+        }
+
+        return level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16.0D, false);
+    }
+
+    // Adapted from LivingEntity.isLookingAtMe()
+    public boolean isInPlayerView(final BlockPos blockPos, final ServerLevel level, final Player target, final double coneSize,
+                                 final boolean adjustForDistance, final boolean seeThroughTransparentBlocks) {
+        Vec3 look = target.getViewVector(1.0F).multiply(1, 0, 1).normalize();
+
+        Vec3 dir = new Vec3(blockPos.getX() - target.getX(), 0, blockPos.getZ() - target.getZ());
+        double dist = dir.length();
+        dir = dir.normalize();
+        double dot = look.dot(dir);
+        if (dot > 1.0 - coneSize / (adjustForDistance ? dist : 1.0)
+                && hasLineOfSight(blockPos, level, target, seeThroughTransparentBlocks ? ClipContext.Block.VISUAL : ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Adapted from LivingEntity.hasLineOfSight()
+    public boolean hasLineOfSight(final BlockPos blockPos, final ServerLevel level, final Player target, ClipContext.Block blockCollidingContext,
+                                  final ClipContext.Fluid fluidCollidingContext) {
+        if (target.level() != level) {
+            return false;
+        }
+
+        Vec3 from = new Vec3(blockPos.getX(), 0, blockPos.getZ());
+        Vec3 to = new Vec3(target.getX(), 0, target.getZ());
+        return to.distanceTo(from) > 128.0
+                ? false
+                : level.clip(new ClipContext(from, to, blockCollidingContext, fluidCollidingContext, target)).getType() == HitResult.Type.MISS;
     }
 }
