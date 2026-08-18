@@ -202,6 +202,10 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
             double dx = pos.getX() + 0.5 - player.getX();
             double dz = pos.getZ() + 0.5 - player.getZ();
             blockEntity.setEyesActive(!isInPlayerView(pos, level, player, 1, false, true));
+        } else if (player == null && level.getBlockEntity(pos) instanceof TerracottaSoldierBlockEntity blockEntity) {
+            if (blockEntity.getEyesActive()) {
+                blockEntity.setEyesActive(false);
+            }
         }
 
         level.scheduleTick(pos, this, 5);
@@ -212,7 +216,7 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
             return null;
         }
 
-        return level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16.0D, false);
+        return level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 24.0D, false);
     }
 
     // Adapted from LivingEntity.isLookingAtMe()
