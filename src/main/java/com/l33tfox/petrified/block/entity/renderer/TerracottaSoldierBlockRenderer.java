@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -33,6 +34,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import static net.minecraft.client.renderer.entity.LivingEntityRenderer.getOverlayCoords;
+
+// Only created for the bottom half block to avoid making 2 block entities
 @Environment(EnvType.CLIENT)
 public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<TerracottaSoldierBlockEntity, TerracottaSoldierBlockEntityState> {
 
@@ -66,7 +70,6 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, tickProgress, cameraPos, crumblingOverlay);
 
-        state.isTopBlock = blockEntity.getBlockState().getValue(TerracottaSoldierBlock.HALF) == DoubleBlockHalf.UPPER;
         state.yaw = blockEntity.getYaw();
         state.eyesActive = blockEntity.getEyesActive();
         state.weapon = blockEntity.getWeapon();
@@ -96,16 +99,13 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
 
     @Override
     public void submit(TerracottaSoldierBlockEntityState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        // Don't render 2 statue models
-        if (state.isTopBlock) {
-            return;
-        }
-
         poseStack.pushPose();
 
         poseStack.translate(0.5F, 1.5F, 0.5F);
         poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(state.yaw));
+
+        ModelFeatureRenderer.CrumblingOverlay crumblingOverlay = state.breakProgress;
 
         // add main model to render queue
         submitNodeCollector.submitModel(
@@ -118,7 +118,7 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
                 0xFFFFFFFF,
                 null,
                 0,
-                null
+                crumblingOverlay
         );
 
         Identifier eyesTexture = OG_EYES_TEXTURE;

@@ -80,12 +80,9 @@ public class TerracottaSoldierEntity extends AbstractIllager implements Crossbow
     }
 
     public static enum SoldierArmPose {
-        CROSSED,
         ATTACKING,
-        BOW_AND_ARROW,
         CROSSBOW_HOLD,
         CROSSBOW_CHARGE,
-        CELEBRATING,
         NEUTRAL,
         SPEAR;
 

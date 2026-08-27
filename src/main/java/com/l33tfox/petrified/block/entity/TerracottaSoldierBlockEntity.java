@@ -33,6 +33,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.Optional;
 import java.util.Random;
 
+// Only created for the bottom half block (logic for this in TerracottaSoldierBlock's newBlockEntity())
 public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEventListener.Provider<TerracottaSoldierBlockEntity.BlockChangeListener>{
 
     private float yaw = 0.0f;

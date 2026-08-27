@@ -7,6 +7,9 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -171,9 +174,18 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState onState, Entity entity) {
         if(!level.isClientSide() && entity instanceof Player) {
-            System.out.println("a");
             spawnAliveSoldier((ServerLevel) level, pos, level.getBlockEntity(pos.below()));
             level.removeBlock(pos, false);
+        } else if (entity instanceof Player) {
+            for (int i = 0; i < 100; i++) {
+                level.addParticle(
+                        new BlockParticleOption(ParticleTypes.BLOCK_CRUMBLE, Blocks.MUD_BRICKS.defaultBlockState()),
+                        pos.getX() + 0.5 + (RANDOM.nextDouble() - 0.5) * 2,
+                        pos.getY() + 1 + (RANDOM.nextDouble() - 0.5) * 2,
+                        pos.getZ() + 0.5 + (RANDOM.nextDouble() - 0.5) * 2,
+                        0, -0.05, 0
+                );
+            }
         }
     }
 
@@ -213,6 +225,9 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) {
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            return null;
+        }
         return new TerracottaSoldierBlockEntity(worldPosition, blockState);
     }
 

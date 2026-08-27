@@ -1,13 +1,16 @@
 {
-	"required": true,
-	"package": "com.l33tfox.petrified.mixin",
-	"compatibilityLevel": "JAVA_25",
-	"mixins": [
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	}
+  "required": true,
+  "package": "com.l33tfox.petrified.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "LevelExtractorMixin"
+  ]
 }
