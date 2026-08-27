@@ -1,6 +1,8 @@
 package com.l33tfox.petrified.block.entity;
 
+import com.l33tfox.petrified.block.PBlocks;
 import com.l33tfox.petrified.block.TerracottaSoldierBlock;
+import com.l33tfox.petrified.entity.TerracottaSoldierEntity;
 import com.l33tfox.petrified.util.TerracottaSoldierWeapon;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,10 +15,14 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipBlockStateContext;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
@@ -25,8 +31,10 @@ import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import org.apache.logging.log4j.core.jmx.Server;
 import org.jspecify.annotations.NonNull;
 
@@ -34,7 +42,7 @@ import java.util.Optional;
 import java.util.Random;
 
 // Only created for the bottom half block (logic for this in TerracottaSoldierBlock's newBlockEntity())
-public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEventListener.Provider<TerracottaSoldierBlockEntity.BlockChangeListener>{
+public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEventListener.Provider<TerracottaSoldierBlockEntity.BlockChangeListener> {
 
     private float yaw = 0.0f;
     private boolean eyesActive = false;
@@ -45,6 +53,7 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
     public float rightArmXRot;
     public float headXRot;
     public float headYRot;
+    public boolean awakening = false;
 
     public TerracottaSoldierBlockEntity(final BlockPos worldPosition, final BlockState blockState) {
         super(PBlockEntityTypes.TERRACOTTA_SOLDIER_BLOCK_ENTITY, worldPosition, blockState);
@@ -103,8 +112,8 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
 
     public void awaken() {
         Block block = getBlockState().getBlock();
-        if (block instanceof TerracottaSoldierBlock soldierBlock && !level.isClientSide()) {
-            soldierBlock.spawnAliveSoldier((ServerLevel) getLevel(), getBlockPos(), this);
+        if (block instanceof TerracottaSoldierBlock soldierBlock && getLevel() instanceof ServerLevel serverLevel) {
+            soldierBlock.spawnAliveSoldier(serverLevel, getBlockPos(), this);
         }
     }
 
@@ -153,6 +162,12 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
         return listener;
     }
 
+    public static void serverTick(TerracottaSoldierBlockEntity blockEntity) {
+        if (blockEntity.awakening) {
+            blockEntity.awaken();
+        }
+    }
+
     public class BlockChangeListener implements GameEventListener {
         public static final int LISTENER_RANGE = 8;
         protected final BlockPos blockPos;
@@ -182,32 +197,33 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
                 }
 
                 Vec3 destination = (Vec3)listenerSourcePos.get();
-                if (isOccluded(level, sourcePosition, destination)) {
+
+                if (destination.equals(sourcePosition) || !(context.sourceEntity() instanceof Player)) {
                     return false;
                 }
 
-                awaken();
-                return true;
+                if (context.affectedState() != null && context.affectedState().is(PBlocks.TERRACOTTA_SOLDIER)) {
+                    return false;
+                }
+
+                if (isBehindWall(level, sourcePosition, destination)) {
+                    return false;
+                }
+
+                awakening = true;
             }
 
             return false;
         }
 
-        // Adapted from VibrationSystem.isOccluded()
-        private static boolean isOccluded(final Level level, final Vec3 origin, final Vec3 dest) {
-            Vec3 from = new Vec3((double) Mth.floor(origin.x) + 0.5, (double)Mth.floor(origin.y) + 0.5, (double)Mth.floor(origin.z) + 0.5);
-            Vec3 to = new Vec3((double)Mth.floor(dest.x) + 0.5, (double)Mth.floor(dest.y) + 0.5, (double)Mth.floor(dest.z) + 0.5);
-            Direction[] var5 = Direction.values();
-            int var6 = var5.length;
+        private static boolean isBehindWall(final Level level, final Vec3 origin, final Vec3 dest) {
+            Vec3 direction = dest.subtract(origin).normalize();
+            Vec3 start = origin.add(direction.scale(1));
 
-            for (Direction direction : var5) {
-                Vec3 nudgedSource = from.relative(direction, 9.999999747378752E-6);
-                if (level.isBlockInLine(new ClipBlockStateContext(nudgedSource, to, BlockBehaviour.BlockStateBase::isSolid)).getType() != HitResult.Type.BLOCK) {
-                    return false;
-                }
-            }
+            HitResult result = level.isBlockInLine(
+                    new ClipBlockStateContext(start, dest, state -> !state.is(PBlocks.TERRACOTTA_SOLDIER) && state.isSolid()));
 
-            return true;
+            return result.getType() == HitResult.Type.BLOCK;
         }
     }
 

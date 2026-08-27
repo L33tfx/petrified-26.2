@@ -33,11 +33,7 @@ public abstract class LevelExtractorMixin {
                     target = "Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;get(J)Ljava/lang/Object;"))
     private Object petrified$checkUpperHalfBreaking(Object original, @Local(name = "blockPos")
             BlockPos blockPos, @Local(name = "blockEntity") BlockEntity blockEntity) {
-        if (!(blockEntity instanceof TerracottaSoldierBlockEntity)) {
-            return original;
-        }
-
-        if (original != null) {
+        if (!(blockEntity instanceof TerracottaSoldierBlockEntity) || original != null) {
             return original;
         }
 

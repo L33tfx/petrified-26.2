@@ -27,12 +27,9 @@ import net.minecraft.world.item.CrossbowItem;
 public class TerracottaSoldierEntityRenderer extends MobRenderer<TerracottaSoldierEntity, TerracottaSoldierEntityState, TerracottaSoldierModel<TerracottaSoldierEntityState>> {
 
     private static final Identifier TEXTURE = Petrified.id("textures/entity/terracotta_soldier.png");
-    private static final Identifier EYES_TEXTURE = Petrified.id("textures/entity/terracotta_soldier_eyes_blue.png");
-    private final TerracottaSoldierEyesModel<TerracottaSoldierEntityState> eyesModel;
 
     public TerracottaSoldierEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new TerracottaSoldierModel<>(context.bakeLayer(PEntityModelLayers.TERRACOTTA_SOLDIER_LAYER)), 0.375f);
-        eyesModel = new TerracottaSoldierEyesModel<>(context.bakeLayer(PEntityModelLayers.TERRACOTTA_SOLDIER_EYES_LAYER));
         this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(new TerracottaSoldierEyesLayer<>(this));
     }

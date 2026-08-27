@@ -1,5 +1,6 @@
 package com.l33tfox.petrified.block;
 
+import com.l33tfox.petrified.block.entity.PBlockEntityTypes;
 import com.l33tfox.petrified.block.entity.TerracottaSoldierBlockEntity;
 import com.l33tfox.petrified.entity.PEntityTypes;
 import com.l33tfox.petrified.entity.TerracottaSoldierEntity;
@@ -12,6 +13,8 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -89,6 +92,19 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
         } else {
             return Blocks.AIR.defaultBlockState();
         }
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) {
+        return createBlockEntityTicker(level, type, PBlockEntityTypes.TERRACOTTA_SOLDIER_BLOCK_ENTITY);
+    }
+
+    protected static <T extends BlockEntity> @Nullable BlockEntityTicker<T> createBlockEntityTicker(
+            final Level level, final BlockEntityType<T> actualType, final BlockEntityType<? extends TerracottaSoldierBlockEntity> expectedType
+    ) {
+        return level instanceof ServerLevel serverLevel
+                ? createTickerHelper(actualType, expectedType, (innerLevel, pos, state, entity) -> TerracottaSoldierBlockEntity.serverTick(entity))
+                : null;
     }
 
     @Override
@@ -173,30 +189,33 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState onState, Entity entity) {
-        if(!level.isClientSide() && entity instanceof Player) {
-            spawnAliveSoldier((ServerLevel) level, pos, level.getBlockEntity(pos.below()));
-            level.removeBlock(pos, false);
-        } else if (entity instanceof Player) {
-            for (int i = 0; i < 100; i++) {
-                level.addParticle(
-                        new BlockParticleOption(ParticleTypes.BLOCK_CRUMBLE, Blocks.MUD_BRICKS.defaultBlockState()),
-                        pos.getX() + 0.5 + (RANDOM.nextDouble() - 0.5) * 2,
-                        pos.getY() + 1 + (RANDOM.nextDouble() - 0.5) * 2,
-                        pos.getZ() + 0.5 + (RANDOM.nextDouble() - 0.5) * 2,
-                        0, -0.05, 0
-                );
-            }
+        if(entity instanceof Player && level instanceof ServerLevel serverLevel) {
+            spawnAliveSoldier(serverLevel, pos, level.getBlockEntity(pos.below()));
         }
     }
 
     public void spawnAliveSoldier(ServerLevel serverLevel, BlockPos pos, @Nullable BlockEntity blockEntity) {
+        for (int i = 0; i < 100; i++) {
+            serverLevel.sendParticles(
+                    new BlockParticleOption(ParticleTypes.BLOCK_CRUMBLE, Blocks.MUD_BRICKS.defaultBlockState()),
+                    pos.getX() + 0.5 + (RANDOM.nextDouble() - 0.5) * 2,
+                    pos.getY() + 1 + (RANDOM.nextDouble() - 0.5) * 2,
+                    pos.getZ() + 0.5 + (RANDOM.nextDouble() - 0.5) * 2,
+                    10, 0.5, 0.5, 0.5, 0.1
+            );
+        }
+
         TerracottaSoldierEntity aliveSoldier = new TerracottaSoldierEntity(PEntityTypes.TERRACOTTA_SOLDIER, serverLevel);
         if (blockEntity instanceof TerracottaSoldierBlockEntity soldierBlockEntity) {
             aliveSoldier.setWeapon(soldierBlockEntity.getWeapon());
+            aliveSoldier.setYHeadRot(soldierBlockEntity.getYaw());
             aliveSoldier.setYRot(soldierBlockEntity.getYaw());
         }
         aliveSoldier.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         serverLevel.addFreshEntity(aliveSoldier);
+        serverLevel.playSound(null, pos, SoundEvents.MUD_BRICKS_FALL, SoundSource.BLOCKS,5.0F, 0.5F);
+        serverLevel.playSound(null, pos, SoundEvents.IRON_GOLEM_DAMAGE, SoundSource.HOSTILE,0.5F, 0.5F);
+        serverLevel.removeBlock(pos, false);
     }
 
     protected static void preventDropFromBottomPart(final Level level, final BlockPos pos, final BlockState state, final Player player) {

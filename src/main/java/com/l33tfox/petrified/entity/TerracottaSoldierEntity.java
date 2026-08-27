@@ -34,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -189,7 +190,12 @@ public class TerracottaSoldierEntity extends AbstractIllager implements Crossbow
         if (!level().isClientSide()) {
             ServerLevel serverLevel = (ServerLevel) level;
             BlockState statueBlock = PBlocks.TERRACOTTA_SOLDIER.defaultBlockState();
-            serverLevel.setBlock(blockPosition(), statueBlock, 3);
+            TerracottaSoldierBlock.placeAt(
+                    serverLevel,
+                    statueBlock,
+                    blockPosition(),
+                    Block.UPDATE_ALL
+            );
             serverLevel.gameEvent(GameEvent.BLOCK_PLACE, blockPosition(), GameEvent.Context.of(this, statueBlock));
 
             Optional<TerracottaSoldierBlockEntity> optionalBlockEntity = serverLevel.getBlockEntity(blockPosition(), PBlockEntityTypes.TERRACOTTA_SOLDIER_BLOCK_ENTITY);
