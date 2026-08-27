@@ -166,6 +166,60 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
         if (blockEntity.awakening) {
             blockEntity.awaken();
         }
+
+        Level level = blockEntity.getLevel();
+        BlockPos pos = blockEntity.getBlockPos();
+
+        Player player = blockEntity.getNearestPlayer((ServerLevel) level, pos);
+        if (player != null) {
+            double dx = pos.getX() + 0.5 - player.getX();
+            double dz = pos.getZ() + 0.5 - player.getZ();
+            blockEntity.setEyesActive(!isInPlayerView(pos, (ServerLevel) level, player, 1, false, true));
+        } else if (player == null) {
+            if (blockEntity.getEyesActive()) {
+                blockEntity.setEyesActive(false);
+            }
+        }
+    }
+
+    private Player getNearestPlayer(ServerLevel level, BlockPos pos) {
+        if (level == null) {
+            return null;
+        }
+
+        return level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 24.0D, false);
+    }
+
+    // Adapted from LivingEntity.isLookingAtMe()
+    public static boolean isInPlayerView(final BlockPos blockPos, final ServerLevel level, final Player target, final double coneSize,
+                                         final boolean adjustForDistance, final boolean seeThroughTransparentBlocks) {
+        Vec3 look = target.getViewVector(1.0F).multiply(1, 0, 1).normalize();
+
+        Vec3 dir = new Vec3(blockPos.getX() - target.getX(), 0, blockPos.getZ() - target.getZ());
+        double dist = dir.length();
+        dir = dir.normalize();
+        double dot = look.dot(dir);
+        if (dot > 1.0 - coneSize / (adjustForDistance ? dist : 1.0)
+                && hasLineOfSight(blockPos, level, target, seeThroughTransparentBlocks ? ClipContext.Block.VISUAL : ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Adapted from LivingEntity.hasLineOfSight()
+    public static boolean hasLineOfSight(final BlockPos blockPos, final ServerLevel level, final Player target, ClipContext.Block blockCollidingContext,
+                                         final ClipContext.Fluid fluidCollidingContext) {
+        if (target.level() != level) {
+            return false;
+        }
+
+        Vec3 from = target.getEyePosition();
+        Vec3 to = Vec3.atCenterOf(blockPos);
+
+        return to.distanceTo(from) > 128.0
+                ? false
+                : level.isBlockInLine(new ClipBlockStateContext(from, to, state -> state.is(PBlocks.TERRACOTTA_SOLDIER))).getType() == HitResult.Type.BLOCK;
     }
 
     public class BlockChangeListener implements GameEventListener {

@@ -142,13 +142,6 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
         return belowState.is(this) && belowState.getValue(HALF) == DoubleBlockHalf.LOWER;
     }
 
-    @Override
-    public void onPlace(final BlockState state, final Level level, final BlockPos pos, final BlockState oldState, final boolean movedByPiston) {
-        if (state.getValue(HALF) != DoubleBlockHalf.UPPER) {
-            level.scheduleTick(pos, this, 5);
-        }
-    }
-
     public static void placeAt(final LevelAccessor level, final BlockState state, final BlockPos lowerPos, final @Block.UpdateFlags int updateType) {
         BlockPos upperPos = lowerPos.above();
         level.setBlock(lowerPos, copyWaterloggedFrom(level, lowerPos, state.setValue(HALF, DoubleBlockHalf.LOWER)), updateType);
@@ -255,59 +248,4 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
-    @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        super.tick(state, level, pos, random);
-        Player player = getNearestPlayer(level, pos);
-        if (player != null && level.getBlockEntity(pos) instanceof TerracottaSoldierBlockEntity blockEntity) {
-            double dx = pos.getX() + 0.5 - player.getX();
-            double dz = pos.getZ() + 0.5 - player.getZ();
-            blockEntity.setEyesActive(!isInPlayerView(pos, level, player, 1, false, true));
-        } else if (player == null && level.getBlockEntity(pos) instanceof TerracottaSoldierBlockEntity blockEntity) {
-            if (blockEntity.getEyesActive()) {
-                blockEntity.setEyesActive(false);
-            }
-        }
-
-        level.scheduleTick(pos, this, 5);
-    }
-
-    private Player getNearestPlayer(ServerLevel level, BlockPos pos) {
-        if (level == null) {
-            return null;
-        }
-
-        return level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 24.0D, false);
-    }
-
-    // Adapted from LivingEntity.isLookingAtMe()
-    public boolean isInPlayerView(final BlockPos blockPos, final ServerLevel level, final Player target, final double coneSize,
-                                  final boolean adjustForDistance, final boolean seeThroughTransparentBlocks) {
-        Vec3 look = target.getViewVector(1.0F).multiply(1, 0, 1).normalize();
-
-        Vec3 dir = new Vec3(blockPos.getX() - target.getX(), 0, blockPos.getZ() - target.getZ());
-        double dist = dir.length();
-        dir = dir.normalize();
-        double dot = look.dot(dir);
-        if (dot > 1.0 - coneSize / (adjustForDistance ? dist : 1.0)
-                && hasLineOfSight(blockPos, level, target, seeThroughTransparentBlocks ? ClipContext.Block.VISUAL : ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    // Adapted from LivingEntity.hasLineOfSight()
-    public boolean hasLineOfSight(final BlockPos blockPos, final ServerLevel level, final Player target, ClipContext.Block blockCollidingContext,
-                                  final ClipContext.Fluid fluidCollidingContext) {
-        if (target.level() != level) {
-            return false;
-        }
-
-        Vec3 from = new Vec3(blockPos.getX(), 0, blockPos.getZ());
-        Vec3 to = new Vec3(target.getX(), 0, target.getZ());
-        return to.distanceTo(from) > 128.0
-                ? false
-                : level.clip(new ClipContext(from, to, blockCollidingContext, fluidCollidingContext, target)).getType() == HitResult.Type.MISS;
-    }
 }
