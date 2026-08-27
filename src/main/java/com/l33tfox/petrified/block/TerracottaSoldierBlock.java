@@ -1,6 +1,8 @@
 package com.l33tfox.petrified.block;
 
 import com.l33tfox.petrified.block.entity.TerracottaSoldierBlockEntity;
+import com.l33tfox.petrified.entity.PEntityTypes;
+import com.l33tfox.petrified.entity.TerracottaSoldierEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -156,6 +158,33 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
             final Level level, final Player player, final BlockPos pos, final BlockState state, final @Nullable BlockEntity blockEntity, final ItemStack destroyedWith
     ) {
         super.playerDestroy(level, player, pos, Blocks.AIR.defaultBlockState(), blockEntity, destroyedWith);
+
+        Holder<Enchantment> silkTouch = level.registryAccess()
+                .lookupOrThrow(Registries.ENCHANTMENT)
+                .getOrThrow(Enchantments.SILK_TOUCH);
+
+        if (level instanceof ServerLevel serverLevel && !player.isCreative() && destroyedWith.getEnchantments().getLevel(silkTouch) == 0) {
+            spawnAliveSoldier(serverLevel, pos, blockEntity);
+        }
+    }
+
+    @Override
+    public void stepOn(Level level, BlockPos pos, BlockState onState, Entity entity) {
+        if(!level.isClientSide() && entity instanceof Player) {
+            System.out.println("a");
+            spawnAliveSoldier((ServerLevel) level, pos, level.getBlockEntity(pos.below()));
+            level.removeBlock(pos, false);
+        }
+    }
+
+    public void spawnAliveSoldier(ServerLevel serverLevel, BlockPos pos, @Nullable BlockEntity blockEntity) {
+        TerracottaSoldierEntity aliveSoldier = new TerracottaSoldierEntity(PEntityTypes.TERRACOTTA_SOLDIER, serverLevel);
+        if (blockEntity instanceof TerracottaSoldierBlockEntity soldierBlockEntity) {
+            aliveSoldier.setWeapon(soldierBlockEntity.getWeapon());
+            aliveSoldier.setYRot(soldierBlockEntity.getYaw());
+        }
+        aliveSoldier.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        serverLevel.addFreshEntity(aliveSoldier);
     }
 
     protected static void preventDropFromBottomPart(final Level level, final BlockPos pos, final BlockState state, final Player player) {
@@ -193,25 +222,9 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void spawnAfterBreak(final BlockState state, final ServerLevel level, final BlockPos pos, final ItemStack tool, final boolean dropExperience) {
-        super.spawnAfterBreak(state, level, pos, tool, dropExperience);
-
-        Holder<Enchantment> silkTouch = level.registryAccess()
-                .lookupOrThrow(Registries.ENCHANTMENT)
-                .getOrThrow(Enchantments.SILK_TOUCH);
-
-        if (tool.getEnchantments().getLevel(silkTouch) != 0) {
-            return;
-        } else {
-            // TODO: spawn entity
-        }
-    }
-
-    @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
         Player player = getNearestPlayer(level, pos);
-        System.out.println(pos);
         if (player != null && level.getBlockEntity(pos) instanceof TerracottaSoldierBlockEntity blockEntity) {
             double dx = pos.getX() + 0.5 - player.getX();
             double dz = pos.getZ() + 0.5 - player.getZ();
@@ -235,7 +248,7 @@ public class TerracottaSoldierBlock extends BaseEntityBlock {
 
     // Adapted from LivingEntity.isLookingAtMe()
     public boolean isInPlayerView(final BlockPos blockPos, final ServerLevel level, final Player target, final double coneSize,
-                                 final boolean adjustForDistance, final boolean seeThroughTransparentBlocks) {
+                                  final boolean adjustForDistance, final boolean seeThroughTransparentBlocks) {
         Vec3 look = target.getViewVector(1.0F).multiply(1, 0, 1).normalize();
 
         Vec3 dir = new Vec3(blockPos.getX() - target.getX(), 0, blockPos.getZ() - target.getZ());

@@ -1,13 +1,14 @@
-package com.l33tfox.petrified.entity.model;
+package com.l33tfox.petrified.block.entity.model;
 
-import com.l33tfox.petrified.entity.state.TerracottaSoldierEntityState;
+import com.l33tfox.petrified.block.entity.state.TerracottaSoldierBlockEntityState;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.util.Mth;
 
-public class TerracottaSoldierEyesModel<S extends TerracottaSoldierEntityState> extends Model<S> {
+public class TerracottaSoldierBlockEyesModel<S extends TerracottaSoldierBlockEntityState> extends Model<S> {
     private final ModelPart head;
     private final ModelPart eyes;
     private final ModelPart hat;
@@ -18,7 +19,7 @@ public class TerracottaSoldierEyesModel<S extends TerracottaSoldierEntityState> 
     private final ModelPart left_leg;
     private final ModelPart right_leg;
 
-    public TerracottaSoldierEyesModel(ModelPart root) {
+    public TerracottaSoldierBlockEyesModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
         this.head = root.getChild("head");
         this.eyes = this.head.getChild("eyes");
@@ -35,7 +36,7 @@ public class TerracottaSoldierEyesModel<S extends TerracottaSoldierEntityState> 
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.offset(8.0F, 0.0F, -8.0F));
+        PartDefinition head = partdefinition.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 
         PartDefinition eyes = head.addOrReplaceChild("eyes", CubeListBuilder.create().texOffs(9, 14).addBox(-3.0F, -4.0F, -4.0F, 2.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
                 .texOffs(13, 14).addBox(1.0F, -4.0F, -4.0F, 2.0F, 1.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
@@ -59,5 +60,7 @@ public class TerracottaSoldierEyesModel<S extends TerracottaSoldierEntityState> 
 
     @Override
     public void setupAnim(S state) {
+        head.xRot = state.getHeadXRot();
+        head.yRot = state.getHeadYRot();
     }
 }

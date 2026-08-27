@@ -3,10 +3,11 @@ package com.l33tfox.petrified.block.entity.renderer;
 import com.l33tfox.petrified.Petrified;
 import com.l33tfox.petrified.block.TerracottaSoldierBlock;
 import com.l33tfox.petrified.block.entity.TerracottaSoldierBlockEntity;
+import com.l33tfox.petrified.block.entity.model.PBlockModelLayers;
+import com.l33tfox.petrified.block.entity.model.TerracottaSoldierBlockEyesModel;
+import com.l33tfox.petrified.block.entity.model.TerracottaSoldierBlockModel;
 import com.l33tfox.petrified.block.entity.state.TerracottaSoldierBlockEntityState;
-import com.l33tfox.petrified.entity.model.PModelLayers;
-import com.l33tfox.petrified.entity.model.TerracottaSoldierEyesModel;
-import com.l33tfox.petrified.entity.model.TerracottaSoldierModel;
+import com.l33tfox.petrified.entity.model.PEntityModelLayers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
@@ -14,29 +15,19 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.LightCoordsUtil;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<TerracottaSoldierBlockEntity, TerracottaSoldierBlockEntityState> {
@@ -44,15 +35,15 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
     private static final Identifier TEXTURE = Petrified.id("textures/block/terracotta_soldier.png");
     private static final Identifier OG_EYES_TEXTURE = Petrified.id("textures/block/terracotta_soldier_eyes_original.png");
     private static final Identifier GLOWING_EYES_TEXTURE = Petrified.id("textures/entity/terracotta_soldier_eyes_blue.png");
-    private final TerracottaSoldierModel<TerracottaSoldierBlockEntityState> model;
-    private final TerracottaSoldierEyesModel<TerracottaSoldierBlockEntityState> eyesModel;
+    private final TerracottaSoldierBlockModel<TerracottaSoldierBlockEntityState> model;
+    private final TerracottaSoldierBlockEyesModel<TerracottaSoldierBlockEntityState> eyesModel;
     private final ItemModelResolver itemModelResolver;
 
     public TerracottaSoldierBlockRenderer(BlockEntityRendererProvider.Context context) {
-        model = new TerracottaSoldierModel<>(
-                context.bakeLayer(PModelLayers.TERRACOTTA_SOLDIER_LAYER)
+        model = new TerracottaSoldierBlockModel<>(
+                context.bakeLayer(PBlockModelLayers.TERRACOTTA_SOLDIER_BLOCK_LAYER)
         );
-        eyesModel = new TerracottaSoldierEyesModel<>(context.bakeLayer(PModelLayers.TERRACOTTA_SOLDIER_EYES_LAYER));
+        eyesModel = new TerracottaSoldierBlockEyesModel<>(context.bakeLayer(PBlockModelLayers.TERRACOTTA_SOLDIER_BLOCK_EYES_LAYER));
         itemModelResolver = context.itemModelResolver();
     }
 
@@ -75,13 +66,16 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
         state.yaw = blockEntity.getYaw();
         state.eyesActive = blockEntity.getEyesActive();
         state.weapon = blockEntity.getWeapon();
+        state.leftArmXRot = blockEntity.leftArmXRot;
+        state.rightArmXRot = blockEntity.rightArmXRot;
+        state.headXRot = blockEntity.headXRot;
+        state.headYRot = blockEntity.headYRot;
 
         ItemStack stack = switch (state.weapon) {
             case DIA_SWORD -> new ItemStack(Items.DIAMOND_SWORD);
             case DIA_SPEAR -> new ItemStack(Items.DIAMOND_SPEAR);
             case DIA_AXE -> new ItemStack(Items.DIAMOND_AXE);
             case CROSSBOW -> new ItemStack(Items.CROSSBOW);
-            case BOW -> new ItemStack(Items.BOW);
         };
 
         state.weaponRenderState.clear();

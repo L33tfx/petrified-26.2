@@ -18,7 +18,7 @@ public class PBlocks {
     public static final Block TERRACOTTA_SOLDIER = register(
             PBlockItemIds.TERRACOTTA_SOLDIER,
             TerracottaSoldierBlock::new,
-            BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).requiresCorrectToolForDrops().strength(25.0F, 600.0F).noOcclusion()
+            BlockBehaviour.Properties.of().sound(SoundType.DECORATED_POT).requiresCorrectToolForDrops().strength(10.0F, 600.0F).noOcclusion()
     );
 
     public static void init() {

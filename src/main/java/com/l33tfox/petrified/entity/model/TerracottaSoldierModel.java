@@ -1,15 +1,26 @@
 package com.l33tfox.petrified.entity.model;
 
-import net.fabricmc.fabric.api.client.rendering.v1.FabricRenderState;
+import com.l33tfox.petrified.entity.TerracottaSoldierEntity;
+import com.l33tfox.petrified.entity.state.TerracottaSoldierEntityState;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.AnimationUtils;
+import net.minecraft.client.model.ArmedModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
+import net.minecraft.client.model.effects.SpearAnimations;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.model.monster.illager.IllagerModel;
+import net.minecraft.client.renderer.entity.state.IllagerRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
 
 // Originally generated with Blockbench for Fabric 1.17+, then updated to 26.2 mappings
-// Used as model for both soldier BlockEntity and Entity
-public class TerracottaSoldierModel<S extends FabricRenderState> extends Model<S> {
+// Model is identical to TerracottaSoldierBlockModel, but this contains entity-specific animations
+public class TerracottaSoldierModel<S extends TerracottaSoldierEntityState> extends EntityModel<S> implements ArmedModel<S> {
 
     private final ModelPart head;
     private final ModelPart hat;
@@ -21,7 +32,7 @@ public class TerracottaSoldierModel<S extends FabricRenderState> extends Model<S
     private final ModelPart right_leg;
 
     public TerracottaSoldierModel(ModelPart root) {
-        super(root, RenderTypes::entityCutout);
+        super(root);
         this.head = root.getChild("head");
         this.hat = root.getChild("hat");
         this.nose = root.getChild("nose");
@@ -31,6 +42,7 @@ public class TerracottaSoldierModel<S extends FabricRenderState> extends Model<S
         this.left_leg = root.getChild("left_leg");
         this.right_leg = root.getChild("right_leg");
     }
+
     public static LayerDefinition getTexturedModelData() {
         MeshDefinition modelData = new MeshDefinition();
         PartDefinition root = modelData.getRoot();
@@ -58,7 +70,50 @@ public class TerracottaSoldierModel<S extends FabricRenderState> extends Model<S
 
     @Override
     public void setupAnim(S state) {
+        super.setupAnim(state);
+        this.head.yRot = state.yRot * 0.017453292F;
+        this.head.xRot = state.xRot * 0.017453292F;
+        this.nose.xRot = state.xRot * 0.017453292F;
+        this.nose.yRot = state.yRot * 0.017453292F;
 
+        float animationSpeed = state.walkAnimationSpeed;
+        float animationPos = state.walkAnimationPos;
+        this.right_arm.xRot = Mth.cos((double)(animationPos * 0.6662F + 3.1415927F)) * 2.0F * animationSpeed * 0.5F;
+        this.right_arm.yRot = 0.0F;
+        this.right_arm.zRot = 0.0F;
+        this.left_arm.xRot = Mth.cos((double)(animationPos * 0.6662F)) * 2.0F * animationSpeed * 0.5F;
+        this.left_arm.yRot = 0.0F;
+        this.left_arm.zRot = 0.0F;
+        this.right_leg.xRot = Mth.cos((double)(animationPos * 0.6662F)) * 1.4F * animationSpeed * 0.5F;
+        this.right_leg.yRot = 0.0F;
+        this.right_leg.zRot = 0.0F;
+        this.left_leg.xRot = Mth.cos((double)(animationPos * 0.6662F + 3.1415927F)) * 1.4F * animationSpeed * 0.5F;
+        this.left_leg.yRot = 0.0F;
+        this.left_leg.zRot = 0.0F;
+
+        TerracottaSoldierEntity.SoldierArmPose pose = state.armPose;
+        if (pose == TerracottaSoldierEntity.SoldierArmPose.ATTACKING) {
+            if (state.getMainHandItemState().isEmpty()) {
+                AnimationUtils.animateZombieArms(this.left_arm, this.right_arm, true, state);
+            } else {
+                AnimationUtils.swingWeaponDown(this.right_arm, this.left_arm, state.mainArm, state.attackAnim, state.ageInTicks);
+            }
+        } else if (pose == TerracottaSoldierEntity.SoldierArmPose.CROSSBOW_HOLD) {
+            AnimationUtils.animateCrossbowHold(this.right_arm, this.left_arm, this.head, true);
+        } else if (pose == TerracottaSoldierEntity.SoldierArmPose.CROSSBOW_CHARGE) {
+            AnimationUtils.animateCrossbowCharge(this.right_arm, this.left_arm, (float)state.maxCrossbowChargeDuration, state.ticksUsingItem, true);
+        } else if (pose == TerracottaSoldierEntity.SoldierArmPose.SPEAR) {
+            SpearAnimations.thirdPersonHandUse(right_arm, head, true, state.rightHandItemStack, state);
+        }
     }
 
+    private ModelPart getArm(final HumanoidArm arm) {
+        return arm == HumanoidArm.LEFT ? this.left_arm : this.right_arm;
+    }
+
+    @Override
+    public void translateToHand(final TerracottaSoldierEntityState state, final HumanoidArm arm, final PoseStack poseStack) {
+        this.root.translateAndRotate(poseStack);
+        this.getArm(arm).translateAndRotate(poseStack);
+    }
 }
