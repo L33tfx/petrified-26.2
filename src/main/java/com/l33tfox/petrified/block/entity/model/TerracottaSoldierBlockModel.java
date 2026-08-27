@@ -1,7 +1,10 @@
 package com.l33tfox.petrified.block.entity.model;
 
 import com.l33tfox.petrified.block.entity.state.TerracottaSoldierBlockEntityState;
+import com.l33tfox.petrified.entity.state.TerracottaSoldierEntityState;
+import com.l33tfox.petrified.util.TerracottaSoldierWeapon;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
@@ -23,7 +26,7 @@ public class TerracottaSoldierBlockModel<S extends TerracottaSoldierBlockEntityS
     private final ModelPart nose;
     private final ModelPart body;
     private final ModelPart left_arm;
-    private final ModelPart right_arm;
+    public final ModelPart right_arm;
     private final ModelPart left_leg;
     private final ModelPart right_leg;
 
@@ -75,6 +78,43 @@ public class TerracottaSoldierBlockModel<S extends TerracottaSoldierBlockEntityS
         head.xRot = state.getHeadXRot();
         head.yRot = state.getHeadYRot();
     }
+
+    // Manually translate instead of using ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
+    // in renderer because of bug with camera rotation affecting rendered item rotation
+    public void translateToRightHand(PoseStack poseStack, float armXRot, TerracottaSoldierWeapon weapon) {
+        poseStack.translate((float) -5/16, (float) 2/16, 0);
+        poseStack.mulPose(Axis.XP.rotation(armXRot));
+        poseStack.translate((float) -1/16, (float) 10/16, 0);
+
+        // Rushed and obviously hardcoded, should change to pull values dynamically later
+        // Scale values are based on the item model .json file thirdperson_righthand values
+        if (weapon == TerracottaSoldierWeapon.DIA_SPEAR) {
+            poseStack.translate(0, (float) 2/16, (float) -4/16);
+
+            poseStack.mulPose(Axis.XP.rotationDegrees(-40.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(270.0F));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-40.0F));
+
+            poseStack.scale(1.7F, 1.7F, 0.85F);
+        } else if (weapon == TerracottaSoldierWeapon.CROSSBOW) {
+            poseStack.translate((float) -2/16, (float) 3/16, (float) -3/16);
+
+            poseStack.mulPose(Axis.XP.rotationDegrees(0.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(0.0F));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(-30.0F));
+
+            poseStack.scale(0.9F, 0.9F, 0.9F);
+        } else {
+            poseStack.translate((float) 0, (float) 0/16, (float) -6/16);
+
+            poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(55.0F));
+
+            poseStack.scale(0.85F, 0.85F, 0.85F);
+        }
+    }
+
 
 }
 

@@ -17,17 +17,21 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.cuboid.ItemTransform;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 @Environment(EnvType.CLIENT)
 public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<TerracottaSoldierBlockEntity, TerracottaSoldierBlockEntityState> {
@@ -83,7 +87,7 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
         itemModelResolver.updateForTopItem(
                 state.weaponRenderState,
                 stack,
-                ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                ItemDisplayContext.NONE,
                 blockEntity.getLevel(),
                 null,
                 blockEntity.hashCode()
@@ -138,6 +142,10 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
                 null
         );
 
+        poseStack.pushPose();
+
+        model.translateToRightHand(poseStack, state.rightArmXRot, state.weapon);
+
         // add item model to render queue
         state.weaponRenderState.submit(
                 poseStack,
@@ -146,6 +154,8 @@ public class TerracottaSoldierBlockRenderer implements BlockEntityRenderer<Terra
                 OverlayTexture.NO_OVERLAY,
                 0
         );
+
+        poseStack.popPose();
 
         poseStack.popPose();
     }
