@@ -11,10 +11,12 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -125,8 +127,8 @@ public class TerracottaSoldierEntity extends AbstractIllager implements Crossbow
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.3499999940395355)
-                .add(Attributes.MAX_HEALTH, 24.0)
-                .add(Attributes.ATTACK_DAMAGE, 5.0)
+                .add(Attributes.MAX_HEALTH, 35.0)
+                .add(Attributes.ATTACK_DAMAGE, 7.0)
                 .add(Attributes.FOLLOW_RANGE, 32.0);
     }
 
@@ -228,8 +230,28 @@ public class TerracottaSoldierEntity extends AbstractIllager implements Crossbow
     }
 
     @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.VINDICATOR_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.VINDICATOR_DEATH;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(final DamageSource source) {
+        return SoundEvents.VINDICATOR_HURT;
+    }
+
+    @Override
     public SoundEvent getCelebrateSound() {
         return null;
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 0.7F;
     }
 
     @Override
