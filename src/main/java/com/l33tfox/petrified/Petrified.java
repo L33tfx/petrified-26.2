@@ -3,6 +3,7 @@ package com.l33tfox.petrified;
 import com.l33tfox.petrified.block.PBlocks;
 import com.l33tfox.petrified.block.entity.PBlockEntityTypes;
 import com.l33tfox.petrified.entity.PEntityTypes;
+import com.l33tfox.petrified.structure.PStructureProcessorTypes;
 import net.fabricmc.api.ModInitializer;
 
 import net.minecraft.core.Registry;
@@ -24,6 +25,7 @@ public class Petrified implements ModInitializer {
 		PBlocks.init();
 		PBlockEntityTypes.init();
 		PEntityTypes.registerAttributes();
+		PStructureProcessorTypes.init();
 	}
 
 	public static Identifier id(String path) {

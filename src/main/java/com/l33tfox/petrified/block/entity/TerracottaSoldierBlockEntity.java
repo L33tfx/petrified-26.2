@@ -67,6 +67,7 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
         rightArmXRot = -1 * leftArmXRot;
         headXRot = (float) ((RANDOM.nextFloat() * 2 * Math.PI / 3) - Math.PI / 3);
         headYRot = (float) ((RANDOM.nextFloat() * Math.PI / 2) - Math.PI / 4);
+        setYaw(RANDOM.nextFloat() * 360.0F);
     }
 
     private void randomizeWeapon() {
