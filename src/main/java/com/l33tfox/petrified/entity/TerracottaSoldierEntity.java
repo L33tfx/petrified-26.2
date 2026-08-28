@@ -251,7 +251,7 @@ public class TerracottaSoldierEntity extends AbstractIllager implements Crossbow
 
     @Override
     public float getVoicePitch() {
-        return (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 0.7F;
+        return (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 0.6F;
     }
 
     @Override
