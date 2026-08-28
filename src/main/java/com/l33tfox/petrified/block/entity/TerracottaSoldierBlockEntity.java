@@ -245,7 +245,7 @@ public class TerracottaSoldierBlockEntity extends BlockEntity implements GameEve
 
         @Override
         public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> event, GameEvent.Context context, Vec3 sourcePosition) {
-            if (event.is(GameEvent.BLOCK_PLACE) || event.is(GameEvent.BLOCK_OPEN) || event.is(GameEvent.BLOCK_DESTROY)) {
+            if (event.is(GameEvent.BLOCK_PLACE) || event.is(GameEvent.CONTAINER_OPEN) || event.is(GameEvent.BLOCK_DESTROY)) {
                 Optional<Vec3> listenerSourcePos = getListenerSource().getPosition(level);
                 if (listenerSourcePos.isEmpty()) {
                     return false;
