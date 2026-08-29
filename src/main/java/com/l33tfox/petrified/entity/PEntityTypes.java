@@ -24,6 +24,16 @@ public class PEntityTypes {
                     .notInPeaceful()
     );
 
+    public static final EntityType<MinotaurEntity> MINOTAUR = register(
+            "minotaur",
+            EntityType.Builder.<MinotaurEntity>of(MinotaurEntity::new, MobCategory.MONSTER)
+                    .canSpawnFarFromPlayer().sized(1.0F, 3.3F)
+                    .passengerAttachments(new float[]{3.15F})
+                    .clientTrackingRange(16)
+                    .fireImmune()
+                    .notInPeaceful()
+    );
+
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Petrified.MOD_ID, name));
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, builder.build(key));
@@ -31,5 +41,6 @@ public class PEntityTypes {
 
     public static void registerAttributes() {
         FabricDefaultAttributeRegistry.register(TERRACOTTA_SOLDIER, TerracottaSoldierEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MINOTAUR, MinotaurEntity.createAttributes());
     }
 }

@@ -13,6 +13,16 @@ repositories {
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
 	mavenCentral()
+
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = 'GeckoLib'
+				url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+			}
+		}
+		filter { includeGroupAndSubgroups('com.geckolib') }
+	}
 }
 
 fabricApi {
@@ -30,6 +40,7 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	implementation "com.ptsmods:devlogin:3.5.1:fabric"
+	implementation "com.geckolib:geckolib-fabric-${minecraft_version}:${geckolibVersion}"
 }
 
 processResources {
