@@ -3,5 +3,10 @@
   "entity.petrified.terracotta_soldier": "Terracotta Soldier",
   "entity.petrified.minotaur": "Minotaur",
   "item.petrified.terracotta_soldier_spawn_egg": "Terracotta Soldier Spawn Egg",
-  "item.petrified.minotaur_spawn_egg": "Minotaur Spawn Egg"
+  "item.petrified.minotaur_spawn_egg": "Minotaur Spawn Egg",
+  "sound.petrified.minotaur_grunt": "Minotaur Grunt",
+  "sound.petrified.minotaur_roar": "Minotaur Roar",
+  "sound.petrified.minotaur_step": "Minotaur Step",
+  "sound.petrified.minotaur_idle": "Minotaur Idle",
+  "sound.petrified.minotaur_swing": "Minotaur Swing"
 }

@@ -1,0 +1,22 @@
+{
+  "minotaur_grunt": {
+    "subtitle": "sound.petrified.minotaur_grunt",
+    "sounds": ["petrified:minotaur_grunt"]
+  },
+  "minotaur_roar": {
+    "subtitle": "sound.petrified.minotaur_roar",
+    "sounds": ["petrified:minotaur_roar"]
+  },
+  "minotaur_step": {
+    "subtitle": "sound.petrified.minotaur_step",
+    "sounds": ["petrified:minotaur_step"]
+  },
+  "minotaur_idle": {
+    "subtitle": "sound.petrified.minotaur_idle",
+    "sounds": ["petrified:minotaur_idle"]
+  },
+  "minotaur_swing": {
+    "subtitle": "sound.petrified.minotaur_swing",
+    "sounds": ["petrified:minotaur_swing"]
+  }
+}

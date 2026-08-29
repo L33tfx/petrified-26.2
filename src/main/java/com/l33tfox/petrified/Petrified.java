@@ -4,6 +4,7 @@ import com.l33tfox.petrified.block.PBlocks;
 import com.l33tfox.petrified.block.entity.PBlockEntityTypes;
 import com.l33tfox.petrified.entity.PEntityTypes;
 import com.l33tfox.petrified.item.PItems;
+import com.l33tfox.petrified.sounds.PSounds;
 import com.l33tfox.petrified.structure.PStructureProcessorTypes;
 import net.fabricmc.api.ModInitializer;
 
@@ -28,6 +29,7 @@ public class Petrified implements ModInitializer {
 		PEntityTypes.registerAttributes();
 		PStructureProcessorTypes.init();
 		PItems.init();
+		PSounds.init();
 	}
 
 	public static Identifier id(String path) {

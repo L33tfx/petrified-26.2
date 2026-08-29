@@ -7,6 +7,7 @@ import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.constant.DefaultAnimations;
 import com.geckolib.util.GeckoLibUtil;
+import com.l33tfox.petrified.sounds.PSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -93,19 +94,19 @@ public class MinotaurEntity extends Monster implements GeoEntity {
     }
 
     protected @Nullable SoundEvent getAmbientSound() {
-        return SoundEvents.WARDEN_AMBIENT;
+        return PSounds.MINOTAUR_IDLE;
     }
 
     protected SoundEvent getHurtSound(final DamageSource source) {
-        return SoundEvents.WARDEN_HURT;
+        return PSounds.MINOTAUR_GRUNT;
     }
 
     protected SoundEvent getDeathSound() {
-        return SoundEvents.WARDEN_DEATH;
+        return PSounds.MINOTAUR_ROAR;
     }
 
     protected void playStepSound(final BlockPos pos, final BlockState blockState) {
-        this.playSound(SoundEvents.WARDEN_STEP, 10.0F, 1.0F);
+        this.playSound(PSounds.MINOTAUR_STEP, 10.0F, 0.6F + this.random.nextFloat() * 0.2F);
     }
 
     @Override
@@ -116,7 +117,7 @@ public class MinotaurEntity extends Monster implements GeoEntity {
     @Override
     protected void playAttackSound() {
         super.playAttackSound();
-        this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.5F);
+        this.playSound(PSounds.MINOTAUR_SWING, 1.0F, 1.0F);
     }
 
     protected void registerGoals() {
