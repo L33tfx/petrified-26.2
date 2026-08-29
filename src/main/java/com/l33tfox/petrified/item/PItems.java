@@ -21,6 +21,12 @@ public class PItems {
             new Item.Properties().spawnEgg(PEntityTypes.TERRACOTTA_SOLDIER)
     );
 
+    public static final Item MINOTAUR_SPAWN_EGG = register(
+            PItemIds.MINOTAUR_SPAWN_EGG,
+            SpawnEggItem::new,
+            new Item.Properties().spawnEgg(PEntityTypes.MINOTAUR)
+    );
+
     public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
         Item item = itemFactory.apply(settings.setId(itemKey));
         Registry.register(BuiltInRegistries.ITEM, itemKey, item);
@@ -30,6 +36,7 @@ public class PItems {
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS).register(creativeTab -> {
             creativeTab.accept(PItems.TERRACOTTA_SOLDIER_SPAWN_EGG);
+            creativeTab.accept(PItems.MINOTAUR_SPAWN_EGG);
         });
     }
 }

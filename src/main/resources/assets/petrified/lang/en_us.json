@@ -1,5 +1,7 @@
 {
   "block.petrified.terracotta_soldier": "Terracotta Soldier Statue",
   "entity.petrified.terracotta_soldier": "Terracotta Soldier",
-  "item.petrified.terracotta_soldier_spawn_egg": "Terracotta Soldier Spawn Egg"
+  "entity.petrified.minotaur": "Minotaur",
+  "item.petrified.terracotta_soldier_spawn_egg": "Terracotta Soldier Spawn Egg",
+  "item.petrified.minotaur_spawn_egg": "Minotaur Spawn Egg"
 }
