@@ -9,7 +9,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypeIds;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.monster.illager.Pillager;
 

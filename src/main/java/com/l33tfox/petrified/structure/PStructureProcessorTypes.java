@@ -9,18 +9,12 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
 public class PStructureProcessorTypes {
-    public static final MapCodec<TombSoldierProcessor> TOMB_SOLDIER_PROCESSOR =
-            register("tomb_soldier", TombSoldierProcessor.CODEC);
+    public static final StructureProcessorType<TombSoldierProcessor> TOMB_SOLDIER_PROCESSOR = register(
+            "tomb_soldier", TombSoldierProcessor.CODEC
+    );
 
-    private static <P extends StructureProcessor> MapCodec<P> register(
-            String id,
-            MapCodec<P> codec
-    ) {
-        return Registry.register(
-                BuiltInRegistries.STRUCTURE_PROCESSOR,
-                Identifier.fromNamespaceAndPath(Petrified.MOD_ID, id),
-                codec
-        );
+    private static <P extends StructureProcessor> StructureProcessorType<P> register(final String id, final MapCodec<P> codec) {
+        return (StructureProcessorType)Registry.register(BuiltInRegistries.STRUCTURE_PROCESSOR, Identifier.fromNamespaceAndPath(Petrified.MOD_ID, id), (StructureProcessorType)() -> codec);
     }
 
     public static void init() {

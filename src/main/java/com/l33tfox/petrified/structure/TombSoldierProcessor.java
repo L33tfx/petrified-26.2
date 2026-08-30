@@ -11,25 +11,24 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import org.jspecify.annotations.Nullable;
 
-public class TombSoldierProcessor implements StructureProcessor {
+public class TombSoldierProcessor extends StructureProcessor {
     public static final MapCodec<TombSoldierProcessor> CODEC = MapCodec.unit(TombSoldierProcessor::new);
 
-    @Override
     public MapCodec<? extends StructureProcessor> codec() {
         return CODEC;
     }
 
     // Replace all soldier blocks with new blocks to refresh NBT data to randomize poses and weapons
     @Override
-    public StructureTemplate.StructureBlockInfo processBlock(
-            final LevelReader level,
-            final BlockPos targetPosition,
-            final BlockPos referencePos,
-            final BlockPos templateRelativePos,
-            final StructureTemplate.StructureBlockInfo processedBlockInfo,
-            final StructurePlaceSettings settings
-    ) {
+    public StructureTemplate.@Nullable StructureBlockInfo processBlock(
+            LevelReader level,
+            BlockPos targetPosition,
+            BlockPos referencePos,
+            StructureTemplate.StructureBlockInfo originalBlockInfo,
+            StructureTemplate.StructureBlockInfo processedBlockInfo,
+            StructurePlaceSettings settings) {
         if (processedBlockInfo.state().is(PBlocks.TERRACOTTA_SOLDIER)) {
             return new StructureTemplate.StructureBlockInfo(
                     processedBlockInfo.pos(),
@@ -39,5 +38,10 @@ public class TombSoldierProcessor implements StructureProcessor {
         }
 
         return processedBlockInfo;
+    }
+
+    @Override
+    protected StructureProcessorType<?> getType() {
+        return PStructureProcessorTypes.TOMB_SOLDIER_PROCESSOR;
     }
 }

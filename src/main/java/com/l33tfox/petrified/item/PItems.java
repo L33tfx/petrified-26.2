@@ -1,7 +1,6 @@
 package com.l33tfox.petrified.item;
 
 import com.l33tfox.petrified.Petrified;
-import com.l33tfox.petrified.block.PBlockItemIds;
 import com.l33tfox.petrified.block.PBlocks;
 import com.l33tfox.petrified.entity.PEntityTypes;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -9,8 +8,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.references.BlockItemId;
-import net.minecraft.references.BlockItemIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -39,12 +36,6 @@ public class PItems {
         Item item = itemFactory.apply(settings.setId(itemKey));
         Registry.register(BuiltInRegistries.ITEM, itemKey, item);
         return item;
-    }
-
-    private static Item registerBlock(
-            final BlockItemId id, final Block block, final BiFunction<Block, Item.Properties, Item> itemFactory, final Item.Properties properties
-    ) {
-        return register(id.item(), p -> itemFactory.apply(block, p), properties.useBlockDescriptionPrefix().requiredFeatures(block.requiredFeatures()));
     }
 
     public static void init() {
