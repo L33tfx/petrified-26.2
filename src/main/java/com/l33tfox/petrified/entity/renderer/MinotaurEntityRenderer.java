@@ -5,6 +5,7 @@ import com.geckolib.renderer.base.GeoRenderState;
 import com.geckolib.renderer.layer.builtin.AutoGlowingGeoLayer;
 import com.l33tfox.petrified.entity.MinotaurEntity;
 import com.l33tfox.petrified.entity.PEntityTypes;
+import com.l33tfox.petrified.entity.renderer.layers.MinotaurGlowingGeoLayer;
 import com.l33tfox.petrified.entity.renderer.layers.TerracottaSoldierEyesLayer;
 import com.l33tfox.petrified.entity.state.MinotaurEntityState;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -16,6 +17,6 @@ public class MinotaurEntityRenderer<R extends LivingEntityRenderState & GeoRende
     public MinotaurEntityRenderer(EntityRendererProvider.Context context) {
         super(context, PEntityTypes.MINOTAUR);
 
-        withRenderLayer(new AutoGlowingGeoLayer<>(this));
+        withRenderLayer(new MinotaurGlowingGeoLayer<>(this));
     }
 }

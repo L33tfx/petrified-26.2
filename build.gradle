@@ -40,7 +40,7 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	implementation "com.ptsmods:devlogin:3.5.1:fabric"
-	implementation "com.geckolib:geckolib-fabric-${minecraft_version}:${geckolibVersion}"
+	implementation "com.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
 }
 
 processResources {
