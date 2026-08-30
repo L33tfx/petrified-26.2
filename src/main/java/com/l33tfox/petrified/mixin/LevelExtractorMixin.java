@@ -29,6 +29,7 @@ import java.util.SortedSet;
 @Mixin(LevelExtractor.class)
 public abstract class LevelExtractorMixin {
 
+    // for also showing breaking animation on bottom block when upper block is being broken
     @ModifyExpressionValue(method = "extractVisibleBlockEntities", at = @At(value = "INVOKE",
                     target = "Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;get(J)Ljava/lang/Object;"))
     private Object petrified$checkUpperHalfBreaking(Object original, @Local(name = "blockPos")

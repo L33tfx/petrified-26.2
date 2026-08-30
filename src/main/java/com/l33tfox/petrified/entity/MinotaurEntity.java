@@ -7,6 +7,7 @@ import com.geckolib.animation.AnimationController;
 import com.geckolib.animation.RawAnimation;
 import com.geckolib.constant.DefaultAnimations;
 import com.geckolib.util.GeckoLibUtil;
+import com.l33tfox.petrified.entity.ai.goal.MinotaurNearestTargetGoal;
 import com.l33tfox.petrified.sounds.PSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
@@ -65,6 +66,7 @@ public class MinotaurEntity extends Monster implements GeoEntity {
                 .add(Attributes.KNOCKBACK_RESISTANCE, (double)1.0F)
                 .add(Attributes.ATTACK_KNOCKBACK, (double)1.5F)
                 .add(Attributes.ATTACK_DAMAGE, (double)15.0F)
+                .add(Attributes.STEP_HEIGHT, 2.2)
                 .add(Attributes.FOLLOW_RANGE, (double)32.0F);
     }
 
@@ -99,7 +101,7 @@ public class MinotaurEntity extends Monster implements GeoEntity {
     }
 
     protected @Nullable SoundEvent getAmbientSound() {
-        return PSounds.MINOTAUR_IDLE;
+        return null;
     }
 
     protected SoundEvent getHurtSound(final DamageSource source) {
@@ -134,8 +136,8 @@ public class MinotaurEntity extends Monster implements GeoEntity {
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
         this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
 
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+        this.targetSelector.addGoal(1, new MinotaurNearestTargetGoal<>(this, Player.class, true));
+        this.targetSelector.addGoal(2, new MinotaurNearestTargetGoal<>(this, AbstractVillager.class, true));
+        this.targetSelector.addGoal(2, new MinotaurNearestTargetGoal<>(this, IronGolem.class, true));
     }
 }
