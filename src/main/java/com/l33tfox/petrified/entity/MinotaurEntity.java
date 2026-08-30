@@ -22,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.feline.Ocelot;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.creaking.Creaking;
@@ -43,7 +44,11 @@ public class MinotaurEntity extends Monster implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(DefaultAnimations.genericWalkIdleController().setAnimationSpeed(getAnimationSpeed()));
+        controllerRegistrar.add(
+                new AnimationController<>("Walk/Idle", test -> {
+                    test.setControllerSpeed(getAnimationSpeed());
+                    return test.setAndContinue(test.isMoving() ? DefaultAnimations.WALK : DefaultAnimations.IDLE);
+                }));
         controllerRegistrar.add(DefaultAnimations.genericDeathController());
         controllerRegistrar.add(DefaultAnimations.genericAttackAnimation(DefaultAnimations.ATTACK_SWING));
     }
@@ -63,10 +68,10 @@ public class MinotaurEntity extends Monster implements GeoEntity {
                 .add(Attributes.FOLLOW_RANGE, (double)32.0F);
     }
 
-    private double getAnimationSpeed() {
-        double speed = this.getSpeed();
+    private float getAnimationSpeed() {
+        double speed = getDeltaMovement().length();
 
-        return Mth.clamp(speed / 0.24D, 0.5D, 2.5D);
+        return (float) speed * 5;
     }
 
     @Override
@@ -106,7 +111,7 @@ public class MinotaurEntity extends Monster implements GeoEntity {
     }
 
     protected void playStepSound(final BlockPos pos, final BlockState blockState) {
-        this.playSound(PSounds.MINOTAUR_STEP, 10.0F, 0.6F + this.random.nextFloat() * 0.2F);
+        this.playSound(PSounds.MINOTAUR_STEP, 4.0F, 0.6F + this.random.nextFloat() * 0.2F);
     }
 
     @Override
@@ -117,12 +122,13 @@ public class MinotaurEntity extends Monster implements GeoEntity {
     @Override
     protected void playAttackSound() {
         super.playAttackSound();
-        this.playSound(PSounds.MINOTAUR_SWING, 1.0F, 1.0F);
+        this.playSound(SoundEvents.RAVAGER_ATTACK, 2.0F, 0.5F);
+        this.playSound(PSounds.MINOTAUR_SWING, 2.0F, 1.0F);
     }
 
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2, true));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.3, true));
         this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
