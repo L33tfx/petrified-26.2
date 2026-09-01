@@ -3,6 +3,7 @@
   "start_pool": "petrified:minotaur_tomb/nw",
   "size": 3,
   "max_distance_from_center": 80,
+  "liquid_settings": "ignore_waterlogging",
   "biomes": "#petrified:has_structure/minotaur_tomb",
   "step": "underground_structures",
   "spawn_overrides": {
